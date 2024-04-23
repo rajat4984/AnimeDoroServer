@@ -3,6 +3,9 @@ const nodeMailer = require('nodemailer');
 const Cache = require('cache');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+const jwtSecret = 'myjsonwebtokensecret';
 
 const memoryCache = new Cache(30 * 1000);
 
@@ -90,7 +93,14 @@ const login = async (req, res) => {
     if (!isPasswordCorrect)
       return res.status(401).json('Incorrect password please try again');
 
-    return res.status(200).json(user);
+    const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1h' });
+    const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
+
+    res.cookie(refreshToken, 'refreshToken', {
+      httpOnly: true,
+      sameSite: 'strict',
+    });
+    return res.status(200).header('Authorization', accessToken).json(user);
   } catch (error) {
     console.log(error);
     return res.status(500).json('Cannot login Internal server error');

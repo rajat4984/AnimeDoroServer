@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const userRouter = require('./routers/userRoute.js');
+const userRouter = require('./routers/userRouter.js');
 const authRouter = require('./routers/authRouter.js');
 const mongoose = require('mongoose');
 const PORT = 5000;

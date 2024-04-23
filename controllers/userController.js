@@ -1,7 +1,7 @@
-const getUser = async(req,res)=>{
-    res.send('Get user');
-}
+const getUserData = (req, res) => {
+  res.status(200).json('user data');
+};
 
 module.exports = {
-    getUser,
-}
+  getUserData,
+};
