@@ -100,6 +100,7 @@ const login = async (req, res) => {
       httpOnly: true,
       sameSite: 'strict',
     });
+
     return res.status(200).header('Authorization', accessToken).json(user);
   } catch (error) {
     console.log(error);

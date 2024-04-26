@@ -5,11 +5,13 @@ const jwtSecret = 'myjsonwebtokensecret';
 const authenticate = (req, res, next) => {
   let accessToken = req.headers.authorization;
   let refreshToken;
-  req.headers.cookie.split('; ').map((item) => {
-    if (item.split('=')[1] == 'refreshToken') {
-      refreshToken = item.split('=')[0];
-    }
-  });
+  if (req.headers.cookie) {
+    req.headers.cookie.split('; ').map((item) => {
+      if (item.split('=')[1] == 'refreshToken') {
+        refreshToken = item.split('=')[0];
+      }
+    }); 
+  }
 
   if (!accessToken && !refreshToken)
     return res.status(401).json('Access denied No token provided');

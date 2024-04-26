@@ -17,20 +17,22 @@ const UserSchema = new mongoose.Schema({
   pomoData: [
     {
       pomoDate: {
-        type: Date,
+        type: String,
         required: true,
       },
       NoOfPomo: {
         type: Number,
+        default: 0,
         required: true,
       },
       TotalTime: {
         type: Number,
         required: true,
       },
+
+      _id: false,
     },
   ],
 });
 
-
-module.exports = mongoose.model("User",UserSchema);
+module.exports = mongoose.model('User', UserSchema);
