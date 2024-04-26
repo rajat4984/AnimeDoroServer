@@ -5,21 +5,19 @@ const jwtSecret = 'myjsonwebtokensecret';
 const authenticate = (req, res, next) => {
   let accessToken = req.headers.authorization;
   let refreshToken;
-  if (req.headers.cookie) {
-    req.headers.cookie.split('; ').map((item) => {
-      if (item.split('=')[1] == 'refreshToken') {
-        refreshToken = item.split('=')[0];
-      }
-    }); 
-  }
+
+  req.headers.cookie?.split('; ').map((item) => {
+    if (item.split('=')[1] == 'refreshToken') {
+      refreshToken = item.split('=')[0];
+    }
+  });
 
   if (!accessToken && !refreshToken)
     return res.status(401).json('Access denied No token provided');
 
   try {
-    accessToken = accessToken.split(' ')[1];
+    accessToken = accessToken?.split(' ')[1];
     const decoded = jwt.verify(accessToken, jwtSecret);
-
     req.user = decoded.user;
     next();
   } catch (error) {
@@ -42,7 +40,7 @@ const authenticate = (req, res, next) => {
         .json('Token refreshed');
     } catch (error) {
       console.log(error);
-      return res.status(400).send('Invalid Token');
+      return res.status(400).send('Please login again');
     }
   }
 };

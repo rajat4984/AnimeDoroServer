@@ -12,8 +12,6 @@ const addPomoData = async (req, res) => {
     if (!user) return res.status(404).json('User not found');
 
     const date = new Date().toISOString().split('T')[0];
-    console.log(date, 'date');
-    console.log(user.pomoData[0], 'Hello');
 
     if (user.pomoData[0]) {
       if (user.pomoData[0].pomoDate == date) {
@@ -35,14 +33,31 @@ const addPomoData = async (req, res) => {
     }
 
     await user.save();
-    return res.status(200).json(user);
+    let {password,...userData} = user._doc;
+    return res.status(200).json(userData);
   } catch (error) {
     console.log(error);
     res.status(500).json('Cannot add data Internal server error');
   }
 };
 
+const getPomoData = async (req, res) => {
+  const { userId } = req.body;
+  console.log(userId);
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json('User not found');
+
+    return res.status(200).json({ pomoData: user.pomoData });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json('Cannot get Pomodata internal server error');
+  }
+};
+
 module.exports = {
   getUserData,
   addPomoData,
+  getPomoData,
 };

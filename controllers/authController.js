@@ -70,8 +70,8 @@ const register = async (req, res) => {
 
       await newUser.save();
       memoryCache.del('generatedOtp');
-
-      res.status(200).send('User registered successfully');
+      let { password, ...userData } = newUser._doc;
+      res.status(200).send('User registered successfully', userData);
     } catch (error) {
       console.log(error);
       return res.status(500).json('User not registered internal server error');
@@ -82,13 +82,16 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, enteredPassword } = req.body;
 
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json('User not found');
 
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    const isPasswordCorrect = await bcrypt.compare(
+      enteredPassword,
+      user.password
+    );
 
     if (!isPasswordCorrect)
       return res.status(401).json('Incorrect password please try again');
@@ -101,7 +104,8 @@ const login = async (req, res) => {
       sameSite: 'strict',
     });
 
-    return res.status(200).header('Authorization', accessToken).json(user);
+    const { password, ...userData } = user._doc;
+    return res.status(200).header('Authorization', accessToken).json(userData);
   } catch (error) {
     console.log(error);
     return res.status(500).json('Cannot login Internal server error');
