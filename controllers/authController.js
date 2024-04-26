@@ -5,7 +5,8 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const jwtSecret = 'myjsonwebtokensecret';
+const jwtSecret = process.env.JWT_SECRET;
+console.log(jwtSecret,'jwtSecret')
 
 const memoryCache = new Cache(30 * 1000);
 
