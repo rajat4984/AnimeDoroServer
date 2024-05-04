@@ -6,12 +6,16 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const jwtSecret = process.env.JWT_SECRET;
-console.log(jwtSecret,'jwtSecret')
+console.log(jwtSecret, 'jwtSecret');
 
 const memoryCache = new Cache(30 * 1000);
 
 const sendOtp = async (req, res) => {
   const { email } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user) return res.status(400).json('User already exist');
 
   const generatedOtp = otpGenerator.generate(4, {
     lowerCaseAlphabets: false,
@@ -54,14 +58,19 @@ const sendOtp = async (req, res) => {
 
 const register = async (req, res) => {
   const generatedOtp = memoryCache.get('generatedOtp');
-  const { enteredOtp, email, username, password } = req.body;
 
+  const {
+    otp: enteredOtp,
+    email,
+    username,
+    password: enteredPassowrd,
+  } = req.body;
   if (!generatedOtp)
     return res.status(500).json('Otp expired please generated a new Otp');
   if (enteredOtp == generatedOtp) {
     try {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const hashedPassword = await bcrypt.hash(enteredPassowrd, salt);
 
       const newUser = new User({
         email,
@@ -72,7 +81,9 @@ const register = async (req, res) => {
       await newUser.save();
       memoryCache.del('generatedOtp');
       let { password, ...userData } = newUser._doc;
-      res.status(200).send('User registered successfully', userData);
+      res
+        .status(200)
+        .json({ message: 'User registered successfully', user: userData });
     } catch (error) {
       console.log(error);
       return res.status(500).json('User not registered internal server error');
@@ -83,7 +94,7 @@ const register = async (req, res) => {
 };
 
 const login = async (req, res) => {
-  const { email, enteredPassword } = req.body;
+  const { email, password: enteredPassword } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -100,7 +111,7 @@ const login = async (req, res) => {
     const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
 
-    res.cookie(refreshToken, 'refreshToken', {
+    res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       sameSite: 'strict',
     });

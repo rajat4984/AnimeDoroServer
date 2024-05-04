@@ -13,6 +13,7 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+    max:6
   },
   pomoData: [
     {
