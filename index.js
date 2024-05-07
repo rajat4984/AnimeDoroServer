@@ -14,7 +14,6 @@ const PORT = 5000;
 app.use(express.json());
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
-console.log(process.env.JWT_SECRET, 'Hello');
 
 mongoose
   .connect(process.env.MONGO_URI)

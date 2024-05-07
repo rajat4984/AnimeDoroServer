@@ -112,8 +112,8 @@ const login = async (req, res) => {
     const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
 
     res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      sameSite: 'strict',
+      // httpOnly: true,
+      // sameSite: 'strict',
     });
 
     const { password, ...userData } = user._doc;
