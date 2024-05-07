@@ -12,6 +12,20 @@ const addPomoData = async (req, res) => {
     if (!user) return res.status(404).json('User not found');
 
     const date = new Date().toISOString().split('T')[0];
+    const currentDate = new Date();
+    const yesterdayDate = new Date(currentDate);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterDay = yesterdayDate.toISOString().split('T')[0];
+
+    let isStreak = false;
+
+    user.pomoData.forEach((item) => {
+      console.log(user.streak,'sterak');
+      console.log(user.pomoData.length,'legnth')
+      if (item.pomoDate == yesterDay && user.streak < user.pomoData.length) {
+        user.streak++;
+      }
+    });
 
     if (user.pomoData[0]) {
       if (user.pomoData[0].pomoDate == date) {
@@ -32,8 +46,10 @@ const addPomoData = async (req, res) => {
       });
     }
 
+    if (user.streak === 0) user.streak = 1;
+
     await user.save();
-    let {password,...userData} = user._doc;
+    let { password, ...userData } = user._doc;
     return res.status(200).json(userData);
   } catch (error) {
     console.log(error);

@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    max:6
+    max: 6,
   },
   pomoData: [
     {
@@ -34,6 +34,11 @@ const UserSchema = new mongoose.Schema({
       _id: false,
     },
   ],
+  streak: {
+    type: Number,
+    default: 0,
+    
+  },
 });
 
 module.exports = mongoose.model('User', UserSchema);
