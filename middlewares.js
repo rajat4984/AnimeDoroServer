@@ -22,6 +22,7 @@ const authenticate = (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
+
     if (!refreshToken)
       return res.status(401).json('Access denied No refresh token provided');
 

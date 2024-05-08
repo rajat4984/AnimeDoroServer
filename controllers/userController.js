@@ -37,6 +37,7 @@ const addPomoData = async (req, res) => {
           NoOfPomo: 1,
           TotalTime: minutes,
         });
+        user.streak++;
       }
     } else {
       user.pomoData.unshift({
@@ -44,6 +45,7 @@ const addPomoData = async (req, res) => {
         NoOfPomo: 1,
         TotalTime: minutes,
       });
+      user.streak++;
     }
 
     if (user.streak === 0) user.streak = 1;
