@@ -9,7 +9,7 @@ app.use(
 const userRouter = require('./routers/userRouter.js');
 const authRouter = require('./routers/authRouter.js');
 const mongoose = require('mongoose');
-const PORT = 5000;
+const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use('/api/users', userRouter);

@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
   pomoData: [
     {
       pomoDate: {
-        type: String,
+        type: Date,
         required: true,
       },
       NoOfPomo: {

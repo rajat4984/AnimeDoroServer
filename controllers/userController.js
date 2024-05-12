@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { startOfDay } = require('date-fns');
 
 const getUserData = async (req, res) => {
   res.status(200).json('user data');
@@ -11,29 +12,23 @@ const addPomoData = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json('User not found');
 
-    const date = new Date().toISOString().split('T')[0];
-    const currentDate = new Date();
-    const yesterdayDate = new Date(currentDate);
-    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    const yesterDay = yesterdayDate.toISOString().split('T')[0];
-
-    let isStreak = false;
+    const currentDate = startOfDay(new Date());
+    console.log(currentDate, 'c');
+    const yesterDay = currentDate.getDate() - 1;
 
     user.pomoData.forEach((item) => {
-      console.log(user.streak,'sterak');
-      console.log(user.pomoData.length,'legnth')
       if (item.pomoDate == yesterDay && user.streak < user.pomoData.length) {
         user.streak++;
       }
     });
 
     if (user.pomoData[0]) {
-      if (user.pomoData[0].pomoDate == date) {
+      if (user.pomoData[0].pomoDate.getTime() == currentDate.getTime()) {
         user.pomoData[0].NoOfPomo++;
         user.pomoData[0].TotalTime += Number(minutes);
       } else {
         user.pomoData.unshift({
-          pomoDate: date,
+          pomoDate: currentDate,
           NoOfPomo: 1,
           TotalTime: minutes,
         });
@@ -41,7 +36,7 @@ const addPomoData = async (req, res) => {
       }
     } else {
       user.pomoData.unshift({
-        pomoDate: date,
+        pomoDate: currentDate,
         NoOfPomo: 1,
         TotalTime: minutes,
       });
@@ -61,13 +56,14 @@ const addPomoData = async (req, res) => {
 
 const getPomoData = async (req, res) => {
   const { userId } = req.body;
-  console.log(userId);
   try {
     const user = await User.findById(userId);
 
     if (!user) return res.status(404).json('User not found');
 
-    return res.status(200).json({ pomoData: user.pomoData });
+    return res
+      .status(200)
+      .json({ pomoData: user.pomoData, streak: user.streak });
   } catch (error) {
     console.log(error);
     return res.status(500).json('Cannot get Pomodata internal server error');
