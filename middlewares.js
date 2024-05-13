@@ -7,7 +7,7 @@ const authenticate = (req, res, next) => {
   let refreshToken;
 
   req.headers.cookie?.split('; ').map((item) => {
-    if (item.split('=')[1] == 'refreshToken') {
+    if (item.split('=')[1] == 'refresh_token') {
       refreshToken = item.split('=')[0];
     }
   });
@@ -31,7 +31,7 @@ const authenticate = (req, res, next) => {
       const accessToken = jwt.sign({ user: decoded.user }, jwtSecret, {
         expiresIn: '1h',
       });
-      res.cookie(refreshToken, 'refreshToken', {
+      res.cookie(refreshToken, 'refresh_token', {
         httpOnly: true,
         sameSite: 'strict',
       });

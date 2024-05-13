@@ -4,6 +4,7 @@ const Cache = require('cache');
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const router = require('express').Router();
 
 const jwtSecret = process.env.JWT_SECRET;
 console.log(jwtSecret, 'jwtSecret');
@@ -111,7 +112,7 @@ const login = async (req, res) => {
     const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
 
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
     });
 
     const { password, ...userData } = user._doc;
@@ -121,6 +122,67 @@ const login = async (req, res) => {
     return res.status(500).json('Cannot login Internal server error');
   }
 };
+
+router.get("/anime-proxy", (req, res) => {
+  try {
+    const response = http.get(
+      `http://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.CLIENT_ID}&code_challenge=${req.query.challenge}&state=RequestID42`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*", // Replace '*' with the appropriate origin URL if known
+        },
+      }
+    );
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// request for getting token using the code got in above request
+router.post("/get-token", async function (req, res) {
+  try {
+    const params = {
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
+      code: `${req.body.code}`,
+      code_verifier: `${req.body.challenge}`,
+      grant_type: "authorization_code",
+    };
+
+    // for making data in form-urlencoded
+    const formData = new URLSearchParams();
+    for (const key in params) {
+      formData.append(key, params[key]);
+    }
+
+    const response = await axios.post(
+      "https://myanimelist.net/v1/oauth2/token",
+      formData.toString(),
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    );
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+});
+
+//request for getting profile information
+router.get("/get-profile-info", async (req, res) => {
+  try {
+    const response = await axios.get(
+      "https://api.myanimelist.net/v2/users/@me?fields=anime_statistics",
+      { headers: { Authorization: `Bearer ${req.query.access_token}` } }
+    );
+
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 
 module.exports = {
   login,
