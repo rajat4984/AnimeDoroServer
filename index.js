@@ -15,7 +15,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 app.use('/api/users', userRouter);
 app.use('/api/auth', authRouter);
-app.use('/anime', animeRouter);
+app.use('/api/anime', animeRouter);
 
 mongoose
   .connect(process.env.MONGO_URI)

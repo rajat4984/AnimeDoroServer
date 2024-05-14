@@ -8,7 +8,7 @@ const authenticate = (req, res, next) => {
 
   req.headers.cookie?.split('; ').map((item) => {
     if (item.split('=')[1] == 'refresh_token') {
-      refreshToken = item.split('=')[0];
+      refreshToken = item.split('=')[0];  
     }
   });
 
