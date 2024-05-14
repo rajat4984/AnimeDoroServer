@@ -1,9 +1,11 @@
 const axios = require('axios');
 
 const getAnimeList = async (req, res) => {
+  console.log(req.query.searchValue, 'que');
+  console.log(req.params.searchValue, 'param');
   try {
     const response = await axios(
-      `https://api.myanimelist.net/v2/anime?q=${req.query.searchVal}&limit=5`,
+      `https://api.myanimelist.net/v2/anime?q=${req.query.searchValue}&limit=7`,
       {
         headers: { Authorization: `Bearer ${req.query.accessToken}` },
       }
