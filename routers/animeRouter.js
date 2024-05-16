@@ -10,6 +10,6 @@ const {
 
 
 router.get('/get-anime-list', getAnimeList);
-router.get('/get-anime-info', getAnimeInfo);
+router.post('/get-anime-info', getAnimeInfo);
 
 module.exports = router;

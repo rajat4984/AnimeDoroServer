@@ -5,7 +5,7 @@ const getAnimeList = async (req, res) => {
   console.log(req.params.searchValue, 'param');
   try {
     const response = await axios(
-      `https://api.myanimelist.net/v2/anime?q=${req.query.searchValue}&limit=7`,
+      `https://api.myanimelist.net/v2/anime?q=${req.query.searchValue}&limit=50`,
       {
         headers: { Authorization: `Bearer ${req.query.accessToken}` },
       }
@@ -19,9 +19,9 @@ const getAnimeList = async (req, res) => {
 const getAnimeInfo = async (req, res) => {
   try {
     const response = await axios(
-      `https://api.myanimelist.net/v2/anime/${req.query.id}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics`,
+      `https://api.myanimelist.net/v2/anime/${req.body.id}?fields=id,title,main_picture,alternative_titles,start_date,end_date,synopsis,mean,rank,popularity,num_list_users,num_scoring_users,nsfw,created_at,updated_at,media_type,status,genres,my_list_status,num_episodes,start_season,broadcast,source,average_episode_duration,rating,pictures,background,related_anime,related_manga,recommendations,studios,statistics`,
       {
-        headers: { Authorization: `Bearer ${req.query.access_token}` },
+        headers: { Authorization: `Bearer ${req.body.access_token}` },
       }
     );
 
