@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const { startOfDay } = require('date-fns');
+const axios = require('axios');
 
 const getUserData = async (req, res) => {
   res.status(200).json('user data');
@@ -70,8 +71,27 @@ const getPomoData = async (req, res) => {
   }
 };
 
+const getUserAnimeList = async (req, res) => {
+  try {
+    const response = await axios(
+      'https://api.myanimelist.net/v2/users/Asta_ackerman/animelist',
+      {
+        headers: {
+          Authorization: `Bearer ${req.query.access_token}`,
+        },
+      }
+    );
+    console.log(response,'responseresponse')
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json('Internal erver error');
+  }
+};
+
 module.exports = {
   getUserData,
   addPomoData,
   getPomoData,
+  getUserAnimeList,
 };
