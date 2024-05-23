@@ -27,11 +27,37 @@ const getAnimeInfo = async (req, res) => {
 
     res.status(200).json(response.data);
   } catch (error) {
-    console.log(error);
+    console.log('Helohelohelo');
+    console.log(error.message, 'getanimeinfo');
+  }
+};
+
+const updateAnimeList = async (req, res) => {
+  let payload = {};
+  if (req.body.accessToken !== 0) {
+    payload.num_watched_episodes = req.body.access_token;
+  }
+  try {
+    const response = await axios.put(
+      `https://api.myanimelist.net/v2/anime/${req.body.animeId}/my_list_status`,
+      payload,
+      {
+        headers: { Authorization: `Bearer ${req.body.access_token}` },
+      }
+    );
+
+    return res.status(200).json(response.data);
+  } catch (error) {
+    console.error(
+      'Error updating anime list status:',
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).json('Internal server error');
   }
 };
 
 module.exports = {
   getAnimeList,
   getAnimeInfo,
+  updateAnimeList,
 };

@@ -74,16 +74,17 @@ const getPomoData = async (req, res) => {
 const getUserAnimeList = async (req, res) => {
   try {
     const response = await axios(
-      'https://api.myanimelist.net/v2/users/Asta_ackerman/animelist',
+      'https://api.myanimelist.net/v2/users/Asta_ackerman/animelist?sort=list_updated_at',
       {
         headers: {
           Authorization: `Bearer ${req.query.access_token}`,
         },
       }
     );
-    console.log(response,'responseresponse')
+    console.log(response.data, 'myresponsedata');
     return res.status(200).json(response.data);
   } catch (error) {
+    console.log(error.message, 'yoyoyoyoyyo');
     console.log(error);
     return res.status(500).json('Internal erver error');
   }
