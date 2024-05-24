@@ -33,10 +33,13 @@ const getAnimeInfo = async (req, res) => {
 };
 
 const updateAnimeList = async (req, res) => {
-  let payload = {};
-  if (req.body.accessToken !== 0) {
-    payload.num_watched_episodes = req.body.access_token;
+  console.log(req.body,'reqre')
+  let payload = new URLSearchParams();
+  if (req.body.updatedEpisode !== 0) {
+    payload.append('num_watched_episodes',req.body.updatedEpisode)
   }
+
+  console.log(payload)
   try {
     const response = await axios.put(
       `https://api.myanimelist.net/v2/anime/${req.body.animeId}/my_list_status`,
@@ -45,6 +48,8 @@ const updateAnimeList = async (req, res) => {
         headers: { Authorization: `Bearer ${req.body.access_token}` },
       }
     );
+
+    console.log(response.data,'resiresi')
 
     return res.status(200).json(response.data);
   } catch (error) {
