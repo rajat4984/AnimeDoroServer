@@ -22,6 +22,8 @@ const authenticate = (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
+    return res.status(401).json("Access Token expired");
+  }
 
     if (!refreshToken)
       return res.status(401).json('Access denied No refresh token provided');
@@ -43,7 +45,7 @@ const authenticate = (req, res, next) => {
       console.log(error);
       return res.status(400).send('Please login again');
     }
-  }
+  
 };
 
 module.exports = { authenticate };

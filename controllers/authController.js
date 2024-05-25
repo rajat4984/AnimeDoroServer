@@ -108,8 +108,10 @@ const login = async (req, res) => {
       user.password
     );
 
-    if (!isPasswordCorrect)
+    if (!isPasswordCorrect) {
+      console.log('wrongpass');
       return res.status(401).json('Incorrect password please try again');
+    }
 
     const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1h' });
     const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
