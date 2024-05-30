@@ -14,7 +14,6 @@ const addPomoData = async (req, res) => {
     if (!user) return res.status(404).json('User not found');
 
     const currentDate = startOfDay(new Date());
-    console.log(currentDate, 'c');
     const yesterDay = currentDate.getDate() - 1;
 
     user.pomoData.forEach((item) => {
@@ -81,10 +80,8 @@ const getUserAnimeList = async (req, res) => {
         },
       }
     );
-    console.log(response.data, 'myresponsedata');
     return res.status(200).json(response.data);
   } catch (error) {
-    console.log(error.message, 'yoyoyoyoyyo');
     console.log(error);
     return res.status(500).json('Internal erver error');
   }

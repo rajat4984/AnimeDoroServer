@@ -9,7 +9,6 @@ const http = require('http');
 const axios = require('axios');
 
 const jwtSecret = process.env.JWT_SECRET;
-console.log(jwtSecret, 'jwtSecret');
 
 const memoryCache = new Cache(30 * 1000);
 
@@ -109,7 +108,6 @@ const login = async (req, res) => {
     );
 
     if (!isPasswordCorrect) {
-      console.log('wrongpass');
       return res.status(401).json('Incorrect password please try again');
     }
 
