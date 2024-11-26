@@ -1,8 +1,6 @@
 const axios = require('axios');
 
 const getAnimeList = async (req, res) => {
-  console.log(req.query.searchValue, 'que');
-  console.log(req.params.searchValue, 'param');
   try {
     const response = await axios(
       `https://api.myanimelist.net/v2/anime?q=${req.query.searchValue}&limit=50`,
@@ -39,7 +37,6 @@ const updateAnimeList = async (req, res) => {
     payload.append('num_watched_episodes',req.body.updatedEpisode)
   }
 
-  console.log(payload)
   try {
     const response = await axios.put(
       `https://api.myanimelist.net/v2/anime/${req.body.animeId}/my_list_status`,

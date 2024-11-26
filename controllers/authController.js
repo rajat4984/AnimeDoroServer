@@ -1,12 +1,12 @@
-const otpGenerator = require('otp-generator');
-const nodeMailer = require('nodemailer');
-const Cache = require('cache');
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const router = require('express').Router();
-const http = require('http');
-const axios = require('axios');
+const otpGenerator = require("otp-generator");
+const nodeMailer = require("nodemailer");
+const Cache = require("cache");
+const User = require("../models/User");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const router = require("express").Router();
+const http = require("http");
+const axios = require("axios");
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -17,7 +17,7 @@ const sendOtp = async (req, res) => {
 
   const user = await User.findOne({ email });
 
-  if (user) return res.status(400).json('User already exist');
+  if (user) return res.status(400).json("User already exist");
 
   const generatedOtp = otpGenerator.generate(4, {
     lowerCaseAlphabets: false,
@@ -26,23 +26,23 @@ const sendOtp = async (req, res) => {
   });
 
   const transporter = nodeMailer.createTransport({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
+    service: "gmail",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
-      user: 'rs20021023@gmail.com   ',
-      pass: 'sjpg crnj kpto xgoq',
+      user: "rs20021023@gmail.com   ",
+      pass: "sjpg crnj kpto xgoq",
     },
   });
 
   const mailOptions = {
     from: {
-      name: 'AnimeDoro',
-      address: 'rs20021023@gmail.com',
+      name: "AnimeDoro",
+      address: "rs20021023@gmail.com",
     },
     to: email,
-    subject: 'Your One Time Password For Animedoro',
+    subject: "Your One Time Password For Animedoro",
     html: `
     <p>OTP-${generatedOtp}
     <p>Ignore this mail if you haven't tried to register on Animdoro</p>`,
@@ -50,16 +50,16 @@ const sendOtp = async (req, res) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    memoryCache.put('generatedOtp', generatedOtp);
-    res.status(200).json('Otp sent successfully');
+    memoryCache.put("generatedOtp", generatedOtp);
+    res.status(200).json("Otp sent successfully");
   } catch (error) {
     console.log(error);
-    res.status(500).json('Otp not sent');
+    res.status(500).json("Otp not sent");
   }
 };
 
 const register = async (req, res) => {
-  const generatedOtp = memoryCache.get('generatedOtp');
+  const generatedOtp = memoryCache.get("generatedOtp");
 
   const {
     otp: enteredOtp,
@@ -67,8 +67,9 @@ const register = async (req, res) => {
     username,
     password: enteredPassowrd,
   } = req.body;
+
   if (!generatedOtp)
-    return res.status(500).json('Otp expired please generated a new Otp');
+    return res.status(500).json("Otp expired please generated a new Otp");
   if (enteredOtp == generatedOtp) {
     try {
       const salt = await bcrypt.genSalt(10);
@@ -81,48 +82,51 @@ const register = async (req, res) => {
       });
 
       await newUser.save();
-      memoryCache.del('generatedOtp');
+      memoryCache.del("generatedOtp");
       let { password, ...userData } = newUser._doc;
       res
         .status(200)
-        .json({ message: 'User registered successfully', user: userData });
+        .json({ message: "User registered successfully", user: userData });
     } catch (error) {
       console.log(error);
-      return res.status(500).json('User not registered internal server error');
+      return res.status(500).json("User not registered internal server error");
     }
   } else {
-    res.status(401).json('Wrong otp entered');
+    res.status(401).json("Wrong otp entered");
   }
 };
+
+
 
 const login = async (req, res) => {
   const { email, password: enteredPassword } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json('User not found');
-
+    if (!user) return res.status(404).json("User not found");
     const isPasswordCorrect = await bcrypt.compare(
       enteredPassword,
       user.password
     );
 
     if (!isPasswordCorrect) {
-      return res.status(401).json('Incorrect password please try again');
+      return res.status(401).json("Incorrect password please try again");
     }
 
-    const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1h' });
-    const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: '1d' });
+    const accessToken = jwt.sign({ user }, jwtSecret, { expiresIn: "1h" });
+    const refreshToken = jwt.sign({ user }, jwtSecret, { expiresIn: "1d" });
 
-    res.cookie('refresh_token', refreshToken, {});
+    res.cookie("refresh_token", refreshToken, {});
 
     const { password, ...userData } = user._doc;
-    return res.status(200).header('Authorization', accessToken).json(userData);
+    return res.status(200).header("Authorization", accessToken).json(userData);
   } catch (error) {
     console.log(error);
-    return res.status(500).json('Cannot login Internal server error');
+    return res.status(500).json("Cannot login Internal server error");
   }
 };
+
+
 
 const animeProxy = async (req, res) => {
   try {
@@ -130,8 +134,8 @@ const animeProxy = async (req, res) => {
       `http://myanimelist.net/v1/oauth2/authorize?response_type=code&client_id=${process.env.CLIENT_ID}&code_challenge=${req.query.challenge}&state=RequestID42`,
       {
         headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*', // Replace '*' with the appropriate origin URL if known
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*", // Replace '*' with the appropriate origin URL if known
         },
       }
     );
@@ -150,7 +154,7 @@ const getToken = async function (req, res) {
       client_secret: process.env.CLIENT_SECRET,
       code: `${req.body.code}`,
       code_verifier: `${req.body.challenge}`,
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
     };
 
     // for making data in form-urlencoded
@@ -160,9 +164,9 @@ const getToken = async function (req, res) {
     }
 
     const response = await axios.post(
-      'https://myanimelist.net/v1/oauth2/token',
+      "https://myanimelist.net/v1/oauth2/token",
       formData.toString(),
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
     res.status(200).json(response.data);
   } catch (error) {
@@ -175,7 +179,7 @@ const getToken = async function (req, res) {
 const getProfileInfo = async (req, res) => {
   try {
     const response = await axios.get(
-      'https://api.myanimelist.net/v2/users/@me?fields=anime_statistics',
+      "https://api.myanimelist.net/v2/users/@me?fields=anime_statistics",
       { headers: { Authorization: `Bearer ${req.query.access_token}` } }
     );
 
