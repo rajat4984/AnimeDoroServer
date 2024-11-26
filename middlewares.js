@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -6,46 +6,48 @@ const authenticate = (req, res, next) => {
   let accessToken = req.headers.authorization;
   let refreshToken;
 
-  req.headers.cookie?.split('; ').map((item) => {
-    if (item.split('=')[1] == 'refresh_token') {
-      refreshToken = item.split('=')[0];  
+  // Extract cookies from the headers and parse them correctly
+  req.headers.cookie?.split("; ").forEach((item) => {
+    const [key, value] = item.split("="); // Split the cookie into key and value
+    if (key === "refresh_token") {
+      // Compare the key with "refresh_token"
+      refreshToken = value; // Assign the value of the cookie
     }
   });
 
   if (!accessToken && !refreshToken)
-    return res.status(401).json('Access denied No token provided');
+    return res.status(401).json("Access denied No token provided");
 
   try {
-    accessToken = accessToken?.split(' ')[1];
+    accessToken = accessToken?.split(" ")[1];
     const decoded = jwt.verify(accessToken, jwtSecret);
     req.user = decoded.user;
-    next();
+    return next();
   } catch (error) {
-    console.log(error);
-    return res.status(401).json("Access Token expired");
+    return res.status(401).json(error);
   }
 
-    if (!refreshToken)
-      return res.status(401).json('Access denied No refresh token provided');
+  if (!refreshToken)
+    return res.status(401).json("Access denied No refresh token provided");
 
-    try {
-      const decoded = jwt.verify(refreshToken, jwtSecret);
-      const accessToken = jwt.sign({ user: decoded.user }, jwtSecret, {
-        expiresIn: '1h',
-      });
-      res.cookie(refreshToken, 'refresh_token', {
+  try {
+    const decoded = jwt.verify(refreshToken, jwtSecret);
+    const accessToken = jwt.sign({ user: decoded.user }, jwtSecret, {
+      expiresIn: "1h",
+    });
+
+    return res
+      .status(200)
+      .header("Authorization", accessToken)
+      .cookie("refresh_token", refreshToken, {
         httpOnly: true,
-        sameSite: 'strict',
-      });
-      return res
-        .status(200)
-        .header('Authorization', accessToken)
-        .json('Token refreshed');
-    } catch (error) {
-      console.log(error);
-      return res.status(400).send('Please login again');
-    }
-  
+        sameSite: "strict",
+      })
+      .json("Token refreshed");
+  } catch (error) {
+    console.log(error);
+    return res.status(400).send("Please login again");
+  }
 };
 
 module.exports = { authenticate };
