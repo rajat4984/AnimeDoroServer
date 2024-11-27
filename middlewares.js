@@ -24,29 +24,30 @@ const authenticate = (req, res, next) => {
     req.user = decoded.user;
     return next();
   } catch (error) {
-    return res.status(401).json(error);
-  }
+    if (!refreshToken)
+      return res.status(401).json("Access denied No refresh token provided");
 
-  if (!refreshToken)
-    return res.status(401).json("Access denied No refresh token provided");
+    try {
+      const decoded = jwt.verify(refreshToken, jwtSecret);
+      const newAccessToken = jwt.sign({ user: decoded.user }, jwtSecret, {
+        expiresIn: "1h",
+      });
+      const newRefreshToken = jwt.sign({ user: decoded.user }, jwtSecret, {
+        expiresIn: "1d",
+      });
 
-  try {
-    const decoded = jwt.verify(refreshToken, jwtSecret);
-    const accessToken = jwt.sign({ user: decoded.user }, jwtSecret, {
-      expiresIn: "1h",
-    });
-
-    return res
-      .status(200)
-      .header("Authorization", accessToken)
-      .cookie("refresh_token", refreshToken, {
-        httpOnly: true,
-        sameSite: "strict",
-      })
-      .json("Token refreshed");
-  } catch (error) {
-    console.log(error);
-    return res.status(400).send("Please login again");
+      return res
+        .status(200)
+        .header("Authorization", newAccessToken)
+        .cookie("refresh_token", newRefreshToken, {
+          httpOnly: true,
+          sameSite: "strict",
+        })
+        .json("Token refreshed");
+    } catch (error) {
+      console.log(error);
+      return res.status(400).send("Please login again");
+    }
   }
 };
 
